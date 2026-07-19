@@ -1,0 +1,17 @@
+[package]
+name = "wiki-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "`wiki` command-line front-end for the agent-maintained markdown wiki"
+
+[[bin]]
+name = "wiki"
+path = "src/main.rs"
+
+[dependencies]
+wiki-core.workspace = true
+clap.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true

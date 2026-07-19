@@ -1,0 +1,20 @@
+[package]
+name = "wiki-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Domain logic for the agent-maintained markdown wiki: pages, links, index, log, search, ingest, lint"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+pulldown-cmark.workspace = true
+tantivy.workspace = true
+walkdir.workspace = true
+chrono.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile = "3"

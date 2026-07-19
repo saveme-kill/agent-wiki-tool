@@ -1,0 +1,21 @@
+[package]
+name = "wiki-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "`wiki-mcp` MCP (Model Context Protocol) stdio server for agent-wiki"
+
+[[bin]]
+name = "wiki-mcp"
+path = "src/main.rs"
+
+[dependencies]
+wiki-core.workspace = true
+rmcp.workspace = true
+tokio.workspace = true
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true

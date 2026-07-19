@@ -1,0 +1,8 @@
+# Rust build artifacts
+/target
+
+# tantivy indexes created by example/test workspaces at the repo root
+/.wiki/
+
+# OS / editor cruft
+.DS_Store

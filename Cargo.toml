@@ -1,0 +1,46 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/wiki-core",
+    "crates/wiki-cli",
+    "crates/wiki-mcp",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["agent-wiki contributors"]
+repository = "https://github.com/saveme-kill/agent-wiki-tool"
+description = "agent-wiki: an agent-maintained, persistent markdown wiki (llm-wiki pattern) with MCP + CLI front-ends"
+
+[workspace.dependencies]
+# Domain crate, shared by both front-ends.
+wiki-core = { path = "crates/wiki-core" }
+
+# Serialization / config / frontmatter.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+
+# Markdown parsing (headings, wikilinks).
+pulldown-cmark = "0.13"
+
+# Full-text search.
+tantivy = "0.26"
+
+# Filesystem + time + errors.
+walkdir = "2"
+chrono = { version = "0.4", features = ["clock"] }
+anyhow = "1"
+thiserror = "2"
+
+# CLI.
+clap = { version = "4", features = ["derive"] }
+
+# MCP server stack.
+rmcp = { version = "2.1", features = ["server", "macros", "transport-io", "schemars"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "io-std"] }
+schemars = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
