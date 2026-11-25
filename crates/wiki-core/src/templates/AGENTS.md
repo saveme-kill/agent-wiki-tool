@@ -83,8 +83,8 @@ When the human adds a source:
 
 1. `raw_add` the file (or confirm it's already in `raw/`).
    - **Feishu / online docs:** `raw/` only holds local UTF-8 files, so a
-     Feishu URL can't be added directly. Fetch it first with the lark-doc
-     tooling (or run `scripts/feishu-ingest.sh <url>` from the agent-wiki repo),
+     Feishu URL can't be added directly. Fetch it first with `lark-cli`
+     (or run `scripts/feishu-ingest.sh <url>` from the agent-wiki repo),
      which exports the doc as Markdown into `raw/feishu/<slug>.md` and stamps
      it with `<!-- origin: <url> -->`. Then continue from step 2.
 2. `wiki_plan_ingest` the raw source to get the title, headings, likely affected

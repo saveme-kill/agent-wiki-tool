@@ -2,7 +2,13 @@
 name = "wiki-core"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 license.workspace = true
+authors.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../README.md"
 description = "Domain logic for the agent-maintained markdown wiki: pages, links, index, log, search, ingest, lint"
 
 [dependencies]
@@ -13,7 +19,6 @@ pulldown-cmark.workspace = true
 tantivy.workspace = true
 walkdir.workspace = true
 chrono.workspace = true
-anyhow.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]

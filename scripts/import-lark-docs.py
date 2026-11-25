@@ -1,9 +1,25 @@
 #!/usr/bin/env python3
+"""Bulk-import Feishu (Lark) wiki documents listed in a Markdown manifest table.
+
+Expected Markdown manifest row format:
+    | <ordinal> | <level> | <title> | `<token>` | [Open](https://.../docx/...) |
+
+For each document row, this script:
+  1. Fetches Markdown content via `lark-cli docs +fetch`.
+  2. Stamps provenance HTML comments (`origin`, `fetched`, `title`) and registers
+     the raw document under `raw/feishu/<title>.md` via `wiki add-raw`.
+  3. Creates a `status: stub` source summary page under `wiki/sources/<title>.md`
+     with parent/child hierarchy links so an agent can subsequently synthesize
+     entity and concept pages.
+"""
+
 import argparse
+import datetime
 import html
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -29,6 +45,7 @@ def run(args: List[str], *, input_text: Optional[str] = None) -> subprocess.Comp
         args,
         input=input_text,
         text=True,
+        encoding="utf-8",
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -37,6 +54,26 @@ def run(args: List[str], *, input_text: Optional[str] = None) -> subprocess.Comp
 def die(message: str) -> None:
     print(f"error: {message}", file=sys.stderr)
     sys.exit(1)
+
+
+def resolve_wiki_bin(explicit: Optional[str]) -> str:
+    if explicit:
+        return explicit
+    repo_root = Path(__file__).resolve().parent.parent
+    candidates = [
+        repo_root / "target" / "release" / "wiki",
+        repo_root / "target" / "release" / "wiki.exe",
+        repo_root / "target" / "debug" / "wiki",
+        repo_root / "target" / "debug" / "wiki.exe",
+    ]
+    for candidate in candidates:
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+    found = shutil.which("wiki")
+    if found:
+        return found
+    die("no `wiki` binary found; build with `cargo build --release` or pass --wiki-bin")
+    return ""
 
 
 def token_from_url(url: str) -> str:
@@ -48,9 +85,11 @@ def token_from_url(url: str) -> str:
 
 
 def parse_docs(manifest: Path) -> List[Doc]:
+    if not manifest.is_file():
+        die(f"manifest file not found: {manifest}")
     rows: List[Doc] = []
     row_re = re.compile(
-        r"^\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(.*?)\s*\|\s*`([^`]+)`\s*\|\s*\[打开\]\(([^)]+)\)\s*\|"
+        r"^\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(.*?)\s*\|\s*`([^`]+)`\s*\|\s*\[[^\]]+\]\(([^)]+)\)\s*\|"
     )
     for line in manifest.read_text(encoding="utf-8").splitlines():
         match = row_re.match(line)
@@ -174,11 +213,11 @@ def source_body(doc: Doc, by_token: Dict[str, Doc], children: Dict[str, List[Doc
     return "\n".join(lines) + "\n"
 
 
-def manifest_body(docs: List[Doc]) -> str:
+def manifest_body(docs: List[Doc], manifest_title: str, manifest_raw: str) -> str:
     lines = [
-        "# 计量计费文档清单",
+        f"# {manifest_title}",
         "",
-        "This source page is the import manifest for the Feishu wiki export list in `raw/lark-doc.md`.",
+        f"This source page is the import manifest for the Feishu wiki export list in `raw/{manifest_raw}`.",
         "",
         "## Imported Documents",
         "",
@@ -273,17 +312,57 @@ def write_page(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--manifest", default="lark-doc.md")
-    parser.add_argument("--workspace", default="my-wiki")
-    parser.add_argument("--wiki-bin", default="target/debug/wiki")
-    parser.add_argument("--overwrite-raw", action="store_true")
-    parser.add_argument("--limit", type=int, default=0)
+    parser = argparse.ArgumentParser(
+        description="Bulk-import Feishu (Lark) documents from a Markdown manifest table into an agent-wiki workspace."
+    )
+    parser.add_argument(
+        "--manifest",
+        default="lark-doc.md",
+        help="Path to the Markdown manifest table (default: lark-doc.md).",
+    )
+    parser.add_argument(
+        "--manifest-title",
+        default="Feishu Document Manifest",
+        help="Title for the generated manifest source page (default: 'Feishu Document Manifest').",
+    )
+    parser.add_argument(
+        "--manifest-page",
+        default="sources/lark-doc-manifest",
+        help="Wiki page path for the generated manifest source page (default: sources/lark-doc-manifest).",
+    )
+    parser.add_argument(
+        "--workspace",
+        default=".",
+        help="Target wiki workspace directory (default: current directory).",
+    )
+    parser.add_argument(
+        "--wiki-bin",
+        default=None,
+        help="Path to the `wiki` binary (default: auto-detect release/debug build or PATH).",
+    )
+    parser.add_argument(
+        "--tag",
+        dest="tags",
+        action="append",
+        default=[],
+        help="Additional frontmatter tag to attach to imported source pages (repeatable).",
+    )
+    parser.add_argument(
+        "--overwrite-raw",
+        action="store_true",
+        help="Overwrite existing files in raw/ when re-fetching.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Import at most N rows from the manifest (0 = all).",
+    )
     args = parser.parse_args()
 
     manifest = Path(args.manifest)
     workspace = Path(args.workspace)
-    wiki_bin = args.wiki_bin
+    wiki_bin = resolve_wiki_bin(args.wiki_bin)
     docs = parse_docs(manifest)
     if args.limit:
         docs = docs[: args.limit]
@@ -297,19 +376,31 @@ def main() -> None:
 
     print(f"parsed {len(docs)} docs", file=sys.stderr)
 
-    manifest_raw = "lark-doc.md"
+    base_tags = ["feishu"] + [t for t in args.tags if t != "feishu"]
+    manifest_tags = base_tags if "manifest" in base_tags else ["feishu", "manifest"] + [
+        t for t in args.tags if t not in ("feishu", "manifest")
+    ]
+
+    manifest_raw = manifest.name
     if args.overwrite_raw or not (workspace / "raw" / manifest_raw).exists():
-        add_raw(wiki_bin, workspace, manifest_raw, manifest.read_text(encoding="utf-8"), args.overwrite_raw)
+        add_raw(
+            wiki_bin,
+            workspace,
+            manifest_raw,
+            manifest.read_text(encoding="utf-8"),
+            args.overwrite_raw,
+        )
     write_page(
         wiki_bin,
         workspace,
-        "sources/lark-doc-manifest",
-        "计量计费文档清单",
+        args.manifest_page,
+        args.manifest_title,
         f"raw/{manifest_raw}",
-        manifest_body(docs),
-        tags=["feishu", "manifest", "计量计费"],
+        manifest_body(docs, args.manifest_title, manifest_raw),
+        tags=manifest_tags,
     )
 
+    fetched_date = datetime.date.today().isoformat()
     failures: List[Tuple[Doc, str]] = []
     for index, doc in enumerate(docs, start=1):
         raw_dest_name = raw_dest(doc)
@@ -320,7 +411,7 @@ def main() -> None:
                 markdown = fetch_markdown(doc)
                 stamped = (
                     f"<!-- origin: {doc.url} -->\n"
-                    f"<!-- fetched: 2026-07-07 -->\n"
+                    f"<!-- fetched: {fetched_date} -->\n"
                     f"<!-- title: {doc.title} -->\n\n"
                     f"{markdown.rstrip()}\n"
                 )
@@ -335,7 +426,7 @@ def main() -> None:
                 raw_ref(doc),
                 source_body(doc, by_token, children),
                 origin=doc.url,
-                tags=["feishu", "计量计费"],
+                tags=base_tags,
             )
         except Exception as exc:
             failures.append((doc, str(exc)))

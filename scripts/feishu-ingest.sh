@@ -5,10 +5,10 @@
 #
 # agent-wiki's `wiki-core` is deliberately network-free: `add-raw` only reads
 # local UTF-8 files. Feishu docs are authenticated online content, so this thin
-# shell bridge does the fetching *outside* the core: it uses `lark-cli` (the
-# lark-doc skill's CLI) to export the doc as Markdown, stamps the file with the
-# origin URL as HTML comments, and hands it to `wiki add-raw` under raw/feishu/.
-# The Rust code stays unchanged and unaware of the network.
+# shell bridge does the fetching *outside* the core: it uses `lark-cli` to
+# export the doc as Markdown, stamps the file with the origin URL as HTML
+# comments, and hands it to `wiki add-raw` under raw/feishu/. The Rust code
+# stays unchanged and unaware of the network.
 #
 # Usage:
 #   scripts/feishu-ingest.sh <FEISHU_URL> [--workspace DIR] [--name SLUG]
@@ -45,7 +45,7 @@ while [ $# -gt 0 ]; do
     --name) NAME="${2:-}"; shift 2 ;;
     --name=*) NAME="${1#*=}"; shift ;;
     -h|--help)
-      sed -n '2,30p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+      sed -n '2,29p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
       exit 0 ;;
     --*) die "unknown option: $1" ;;
     *)
@@ -56,7 +56,7 @@ done
 [ -n "$URL" ] || die "missing <FEISHU_URL>; see --help"
 
 # --- dependency checks -------------------------------------------------------
-command -v lark-cli >/dev/null 2>&1 || die "lark-cli not found on PATH (see the lark-doc skill)"
+command -v lark-cli >/dev/null 2>&1 || die "lark-cli not found on PATH; install lark-cli and run 'lark-cli auth login'"
 command -v jq >/dev/null 2>&1 || die "jq not found on PATH"
 
 # Resolve the wiki binary.
@@ -118,7 +118,7 @@ fi
 # `wiki add-raw` copies the file into raw/ and refuses to overwrite an existing
 # raw source (raw is immutable).
 fetched="$(date +%Y-%m-%d)"
-tmp="$(mktemp -t feishu-ingest.XXXXXX)"
+tmp="$(mktemp "${TMPDIR:-/tmp}/feishu-ingest.XXXXXX")"
 trap 'rm -f "$tmp"' EXIT
 {
   printf '<!-- origin: %s -->\n' "$URL"

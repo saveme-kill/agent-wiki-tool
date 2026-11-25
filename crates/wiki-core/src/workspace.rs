@@ -606,18 +606,22 @@ mod tests {
         let dir = tmp();
         let (ws, _) = Workspace::init(dir.path()).unwrap();
 
-        let mut fm = Frontmatter::default();
-        fm.kind = "entity".into();
-        fm.title = "Ada".into();
+        let fm = Frontmatter {
+            kind: "entity".into(),
+            title: "Ada".into(),
+            ..Default::default()
+        };
         ws.write_page(
             "entities/ada",
             &Page::new(fm, "Ada links to [[concepts/engine]].\n"),
         )
         .unwrap();
 
-        let mut fm2 = Frontmatter::default();
-        fm2.kind = "concept".into();
-        fm2.title = "Engine".into();
+        let fm2 = Frontmatter {
+            kind: "concept".into(),
+            title: "Engine".into(),
+            ..Default::default()
+        };
         ws.write_page("concepts/engine", &Page::new(fm2, "The engine.\n"))
             .unwrap();
 

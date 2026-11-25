@@ -278,11 +278,13 @@ mod tests {
 
     #[test]
     fn round_trips_render_parse() {
-        let mut fm = Frontmatter::default();
-        fm.kind = "concept".into();
-        fm.title = "Analytical Engine".into();
-        fm.tags = vec!["computing".into()];
-        fm.created = "2026-07-06".into();
+        let fm = Frontmatter {
+            kind: "concept".into(),
+            title: "Analytical Engine".into(),
+            tags: vec!["computing".into()],
+            created: "2026-07-06".into(),
+            ..Default::default()
+        };
         let page = Page::new(fm, "A mechanical general-purpose computer.\n");
 
         let rendered = page.render().unwrap();
@@ -327,9 +329,11 @@ mod tests {
 
     #[test]
     fn empty_origin_is_omitted_when_rendering() {
-        let mut fm = Frontmatter::default();
-        fm.kind = "concept".into();
-        fm.title = "X".into();
+        let fm = Frontmatter {
+            kind: "concept".into(),
+            title: "X".into(),
+            ..Default::default()
+        };
         let page = Page::new(fm, "body\n");
         let rendered = page.render().unwrap();
         assert!(!rendered.contains("origin:"));

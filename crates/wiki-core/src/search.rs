@@ -377,9 +377,11 @@ mod tests {
     #[test]
     fn indexes_and_searches_english() {
         let (_d, ws) = init_ws();
-        let mut fm = Frontmatter::default();
-        fm.kind = "entity".into();
-        fm.title = "Ada Lovelace".into();
+        let fm = Frontmatter {
+            kind: "entity".into(),
+            title: "Ada Lovelace".into(),
+            ..Default::default()
+        };
         ws.write_page(
             "entities/ada",
             &Page::new(
@@ -400,9 +402,11 @@ mod tests {
     #[test]
     fn searches_cjk() {
         let (_d, ws) = init_ws();
-        let mut fm = Frontmatter::default();
-        fm.kind = "concept".into();
-        fm.title = "分析机".into();
+        let fm = Frontmatter {
+            kind: "concept".into(),
+            title: "分析机".into(),
+            ..Default::default()
+        };
         ws.write_page(
             "concepts/analytical-engine",
             &Page::new(fm, "分析机是一种通用计算机器，由巴贝奇设计。\n"),
@@ -421,9 +425,11 @@ mod tests {
     fn filter_by_scope_and_category() {
         let (_d, ws) = init_ws();
         crate::ingest::raw_add(&ws, "note.md", "shared keyword lives here", false).unwrap();
-        let mut fm = Frontmatter::default();
-        fm.kind = "concept".into();
-        fm.title = "Keyword page".into();
+        let fm = Frontmatter {
+            kind: "concept".into(),
+            title: "Keyword page".into(),
+            ..Default::default()
+        };
         ws.write_page(
             "concepts/kw",
             &Page::new(fm, "shared keyword in a concept page.\n"),
@@ -449,8 +455,10 @@ mod tests {
         SearchIndex::reindex_all(&ws).unwrap();
         let si = SearchIndex::open(&ws).unwrap();
 
-        let mut fm = Frontmatter::default();
-        fm.title = "New".into();
+        let fm = Frontmatter {
+            title: "New".into(),
+            ..Default::default()
+        };
         ws.write_page(
             "concepts/new",
             &Page::new(fm, "brandnewuniqueword appears.\n"),
@@ -469,8 +477,10 @@ mod tests {
         // it removed the index dir and raced with the open mmap handles), and
         // searches must observe freshly-committed writes without a delay.
         let (_d, ws) = init_ws();
-        let mut fm = Frontmatter::default();
-        fm.title = "One".into();
+        let fm = Frontmatter {
+            title: "One".into(),
+            ..Default::default()
+        };
         ws.write_page("concepts/one", &Page::new(fm, "alpha content.\n"))
             .unwrap();
         SearchIndex::reindex_all(&ws).unwrap();
@@ -479,8 +489,10 @@ mod tests {
         assert!(si.num_docs().unwrap() >= 1);
 
         // Add another page and run a full reindex while `si` is still alive.
-        let mut fm2 = Frontmatter::default();
-        fm2.title = "Two".into();
+        let fm2 = Frontmatter {
+            title: "Two".into(),
+            ..Default::default()
+        };
         ws.write_page("concepts/two", &Page::new(fm2, "betacontentword here.\n"))
             .unwrap();
         SearchIndex::reindex_all(&ws).unwrap(); // must not error

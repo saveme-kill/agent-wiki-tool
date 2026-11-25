@@ -1686,7 +1686,6 @@ dependencies = [
 name = "wiki-core"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "chrono",
  "pulldown-cmark",
  "serde",

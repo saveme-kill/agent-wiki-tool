@@ -1,0 +1,27 @@
+name: Feature Request
+description: Propose a new capability, lint check, or workflow improvement for agent-wiki.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: What workflow friction or missing capability are you trying to solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: |
+        Describe how this should work across `wiki-core`, the `wiki` CLI, and `wiki-mcp` (remember that both front-ends wrap `wiki_core::ops`).
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Could this be solved in `AGENTS.md` schema instructions or an external bridge script instead of `wiki-core`?

@@ -228,9 +228,11 @@ mod tests {
         let (_d, ws) = init_ws();
 
         // ada links to a nonexistent page -> dead link. ada has no inbound -> orphan.
-        let mut fm = Frontmatter::default();
-        fm.kind = "entity".into();
-        fm.title = "Ada".into();
+        let fm = Frontmatter {
+            kind: "entity".into(),
+            title: "Ada".into(),
+            ..Default::default()
+        };
         ws.write_page(
             "entities/ada",
             &Page::new(fm, "See [[concepts/ghost]] which does not exist.\n"),
@@ -249,12 +251,16 @@ mod tests {
     #[test]
     fn linked_pages_are_not_orphans() {
         let (_d, ws) = init_ws();
-        let mut a = Frontmatter::default();
-        a.title = "A".into();
+        let a = Frontmatter {
+            title: "A".into(),
+            ..Default::default()
+        };
         ws.write_page("entities/a", &Page::new(a, "Links to [[entities/b]].\n"))
             .unwrap();
-        let mut b = Frontmatter::default();
-        b.title = "B".into();
+        let b = Frontmatter {
+            title: "B".into(),
+            ..Default::default()
+        };
         ws.write_page(
             "entities/b",
             &Page::new(b, "Links back to [[entities/a]].\n"),
@@ -288,10 +294,12 @@ mod tests {
     fn referenced_source_not_flagged_missing() {
         let (_d, ws) = init_ws();
         crate::ingest::raw_add(&ws, "read.md", "text", false).unwrap();
-        let mut fm = Frontmatter::default();
-        fm.kind = "source".into();
-        fm.title = "Summary".into();
-        fm.sources = vec!["raw/read.md".into()];
+        let fm = Frontmatter {
+            kind: "source".into(),
+            title: "Summary".into(),
+            sources: vec!["raw/read.md".into()],
+            ..Default::default()
+        };
         // Link it so it isn't an orphan; link target must exist to avoid dead-link.
         ws.write_page("sources/read", &Page::new(fm, "Summary of the source.\n"))
             .unwrap();
@@ -303,9 +311,11 @@ mod tests {
     #[test]
     fn flags_source_page_missing_origin_and_sources() {
         let (_d, ws) = init_ws();
-        let mut fm = Frontmatter::default();
-        fm.kind = "source".into();
-        fm.title = "Untraceable".into();
+        let fm = Frontmatter {
+            kind: "source".into(),
+            title: "Untraceable".into(),
+            ..Default::default()
+        };
         // Neither origin nor sources set -> provenance is untraceable.
         ws.write_page(
             "sources/mystery",
@@ -329,10 +339,12 @@ mod tests {
     #[test]
     fn source_page_with_origin_is_not_missing_origin() {
         let (_d, ws) = init_ws();
-        let mut fm = Frontmatter::default();
-        fm.kind = "source".into();
-        fm.title = "Feishu Doc".into();
-        fm.origin = "https://x.feishu.cn/docx/abc".into();
+        let fm = Frontmatter {
+            kind: "source".into(),
+            title: "Feishu Doc".into(),
+            origin: "https://x.feishu.cn/docx/abc".into(),
+            ..Default::default()
+        };
         ws.write_page(
             "sources/feishu",
             &Page::new(fm, "Summary of a Feishu doc.\n"),
@@ -347,9 +359,11 @@ mod tests {
     fn non_source_page_without_origin_is_not_flagged() {
         let (_d, ws) = init_ws();
         // A concept page has no provenance obligation.
-        let mut fm = Frontmatter::default();
-        fm.kind = "concept".into();
-        fm.title = "An Idea".into();
+        let fm = Frontmatter {
+            kind: "concept".into(),
+            title: "An Idea".into(),
+            ..Default::default()
+        };
         ws.write_page("concepts/idea", &Page::new(fm, "Just an idea.\n"))
             .unwrap();
 

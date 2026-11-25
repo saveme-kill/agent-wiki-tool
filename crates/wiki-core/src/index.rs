@@ -139,21 +139,27 @@ mod tests {
     fn rebuild_groups_by_category() {
         let (_d, ws) = init_ws();
 
-        let mut e = Frontmatter::default();
-        e.kind = "entity".into();
-        e.title = "Ada Lovelace".into();
+        let e = Frontmatter {
+            kind: "entity".into(),
+            title: "Ada Lovelace".into(),
+            ..Default::default()
+        };
         ws.write_page("entities/ada", &Page::new(e, "A mathematician.\n"))
             .unwrap();
 
-        let mut c = Frontmatter::default();
-        c.kind = "concept".into();
-        c.title = "Analytical Engine".into();
+        let c = Frontmatter {
+            kind: "concept".into(),
+            title: "Analytical Engine".into(),
+            ..Default::default()
+        };
         ws.write_page("concepts/engine", &Page::new(c, "A mechanical computer.\n"))
             .unwrap();
 
-        let mut s = Frontmatter::default();
-        s.kind = "source".into();
-        s.title = "Bio Article".into();
+        let s = Frontmatter {
+            kind: "source".into(),
+            title: "Bio Article".into(),
+            ..Default::default()
+        };
         ws.write_page("sources/bio", &Page::new(s, "Summary of the bio.\n"))
             .unwrap();
 

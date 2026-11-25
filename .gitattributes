@@ -1,0 +1,22 @@
+# Normalize line endings automatically across platforms
+* text=auto eol=lf
+
+# Rust sources and manifests
+*.rs text eol=lf
+*.toml text eol=lf
+*.lock text eol=lf
+
+# Shell and Python scripts must use LF so shebangs work on Linux/macOS/WSL
+*.sh text eol=lf
+*.py text eol=lf
+
+# Documentation and config
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+
+# Windows batch / PowerShell scripts (if added)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf

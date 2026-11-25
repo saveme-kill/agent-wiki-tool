@@ -56,8 +56,9 @@ and needs network access. In a restricted sandbox `cargo build/test` fails with
 "Operation not permitted" writing to `~/.cargo/registry`; run those commands with
 the sandbox disabled. Pure editing/searching does not need this.
 
-There is no CI config, no `rust-toolchain.toml`, and no custom `rustfmt.toml`/
-`clippy.toml` in this repo. Toolchain used during development: rustc/cargo 1.95.
+GitHub Actions CI and release workflows live under `.github/workflows/{ci,release}.yml`.
+There is no `rust-toolchain.toml` and no custom `rustfmt.toml`/`clippy.toml` in this
+repo (`rust-version = "1.85"` in `Cargo.toml`).
 
 ## 3. Code Style
 

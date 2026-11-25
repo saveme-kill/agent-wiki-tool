@@ -9,14 +9,16 @@ members = [
 [workspace.package]
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.85"
 license = "MIT"
 authors = ["agent-wiki contributors"]
 repository = "https://github.com/saveme-kill/agent-wiki-tool"
-description = "agent-wiki: an agent-maintained, persistent markdown wiki (llm-wiki pattern) with MCP + CLI front-ends"
+keywords = ["wiki", "mcp", "llm", "markdown", "knowledge-base"]
+categories = ["command-line-utilities", "text-processing", "development-tools"]
 
 [workspace.dependencies]
 # Domain crate, shared by both front-ends.
-wiki-core = { path = "crates/wiki-core" }
+wiki-core = { path = "crates/wiki-core", version = "0.1.0" }
 
 # Serialization / config / frontmatter.
 serde = { version = "1", features = ["derive"] }
@@ -44,3 +46,7 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread", "io-std"] }
 schemars = "1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+lto = "thin"
+strip = "symbols"

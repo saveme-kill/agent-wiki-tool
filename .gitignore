@@ -1,8 +1,33 @@
 # Rust build artifacts
-/target
+/target/
 
-# tantivy indexes created by example/test workspaces at the repo root
+# tantivy indexes created by example/test workspaces
 /.wiki/
+**/.wiki/
 
-# OS / editor cruft
+# Local test / scratch workspaces
+/my-wiki/
+
+# Python cache / virtual environments (for helper scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Environment & local secrets
+.env
+.env.*
+!.env.example
+
+# Editor & IDE directories
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS metadata
 .DS_Store
+Thumbs.db
+Desktop.ini
