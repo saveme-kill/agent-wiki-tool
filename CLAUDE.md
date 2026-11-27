@@ -21,7 +21,7 @@ cargo fmt                               # standard rustfmt; no rustfmt.toml
 cargo run -p wiki-cli -- <args>         # e.g. `-- init ./my-wiki`
 ```
 
-No `rust-toolchain.toml`, `clippy.toml`, or `rustfmt.toml` exist. Minimum supported Rust version (`rust-version`): `1.85` (CI runs stable `rustfmt`, `clippy -D warnings`, `rustdoc -D warnings`, and cross-platform tests in `.github/workflows/ci.yml`).
+No `rust-toolchain.toml`, `clippy.toml`, or `rustfmt.toml` exist. Minimum supported Rust version (`rust-version`): `1.85` (CI in `.github/workflows/ci.yml` runs `rustfmt --check`, `clippy -D warnings`, and `cargo test` on Linux; doc-only changes skip CI).
 
 **Sandbox note:** first `cargo build/test` needs network to fetch crates (tantivy pulls a large tree). In restricted sandboxes those commands fail writing to `~/.cargo/registry`.
 
